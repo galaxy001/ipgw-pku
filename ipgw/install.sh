@@ -28,7 +28,7 @@ fi
 echo "Please contact Chen Xing ( cxcxcxcx@gmail.com ) to report bugs."
 
 PS3="Please select your distribution: "
-select DISTR in Debian/Ubuntu Gentoo Other
+select DISTR in Debian/Ubuntu Gentoo openSUSE Other
 do
 	case $DISTR in
 		Debian/Ubuntu )
@@ -37,6 +37,10 @@ do
 			;;
 		Gentoo )
 			DISTR="GENTOO"
+			break
+			;;
+		openSUSE )
+			DISTR="SUSE"
 			break
 			;;
 		Other )
@@ -74,6 +78,14 @@ elif [ $DISTR = "FEDORA" ]; then
 elif [ $DISTR = "GENTOO" ]; then
 	install -m 755 -o root -g root ipgws_gen /etc/init.d/ipgw
 	rc-update add ipgw default
+elif [ $DISTR = "SUSE" ]; then
+	ln -fs /etc/init.d/ipgw /etc/init.d/rc5.d/S90ipgw
+	ln -fs /etc/init.d/ipgw /etc/init.d/rc6.d/K13ipgw
+	ln -fs /etc/init.d/ipgw /etc/init.d/rc0.d/K13ipgw
+else
+	ln -fs /etc/init.d/ipgw /etc/rc5.d/S90ipgw
+	ln -fs /etc/init.d/ipgw /etc/rc6.d/K13ipgw
+	ln -fs /etc/init.d/ipgw /etc/rc0.d/K13ipgw
 fi
 
 echo
