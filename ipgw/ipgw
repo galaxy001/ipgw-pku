@@ -1,10 +1,17 @@
 #!/usr/bin/python
+### BEGIN INIT INFO
+# Default-Start:     1 2 3 5
+# Default-Stop:      6 0
+# Short-Description: ipgw
+# Description:       IPGW Connector
+### END INIT INFO
 # PKU IPGW Client for Linux
 #===========================================
 #   AUTHOR: Chen Xing(  cxcxcxcx@gmail.com )
 #  WEBSITE: http://www.linux-wiki.cn/
 #  Created: 2007/09/27
 # Modified: 2008/02/28
+# Modified: 2008/10/07
 
 import cookielib, urllib2, urllib, base64
 import re
