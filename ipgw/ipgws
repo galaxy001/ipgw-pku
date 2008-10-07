@@ -1,0 +1,82 @@
+#!/bin/bash
+# PKU IPGW Client for Linux
+#===========================================
+#   AUTHOR: Chen Xing(  cxcxcxcx@gmail.com )
+#  WEBSITE: http://www.linux-wiki.cn/
+#  Created: 2007/09/27
+# Modified: 2008/02/28
+
+waitNetwork(){
+	i=1
+	ifconfig|grep -q "inet addr:.*B" && route -n | grep -q "^0.0.0.0"
+	until [ $? -eq 0 ] || [ $i -gt 60 ]; do
+		let i=i+1
+		sleep 0.3
+		ifconfig|grep -q "inet addr:.*B" && route -n | grep -q "^0.0.0.0"
+	done
+
+	if [ $i -gt 60 ]; then
+		return 2
+	else
+		return 0
+	fi
+}
+
+Disconnect(){
+	ipgw disconnect
+	return $?
+}
+
+Connect(){
+	ipgw connect
+	return $?
+}
+
+Failed(){
+	echo "Failed"
+	if [[ $1 == 2 ]]; then
+		echo "ERROR: Username or password error."
+	elif [[ $1 == 1 ]]; then
+		echo "ERROR: network error."
+	fi
+	exit 1
+}
+
+case "$1" in
+	start)
+		echo -n "Starting ipgw..."
+		if [ "$(id -u)" != "0" ]; then
+			echo "You must be root to do this. Try to use 'connect' instead of 'start'"
+			exit 1
+		fi
+		waitNetwork || Failed $?
+		Connect || Failed $?
+		echo "OK"
+		;;
+	connect)
+		echo -n "Connecting to ipgw..."
+		Connect || Failed $?
+		echo "OK"
+		;;
+	stop)
+		echo -n "Stopping ipgw..."
+		Disconnect || Failed
+		echo "OK"
+		;;
+	disconnect)
+		echo -n "Disconnecting from ipgw..."
+		Disconnect || Failed
+		echo "OK"
+		;;
+	restart)
+		echo -n "Restarting ipgw..."
+		Connect || Failed
+		echo "OK"
+		;;
+	*)
+		echo "Usage: /etc/init.d/ipgw {start|stop|restart}"
+		echo "OR: ipgw {connect|disconnect}"
+		exit 1
+esac
+
+exit 0
