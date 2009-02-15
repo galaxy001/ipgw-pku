@@ -18,6 +18,7 @@
 #  WEBSITE: http://www.linux-wiki.cn/
 #  Created: 2007/09/27
 # Modified: 2008/02/28
+# Modified: 2009/02/15
 
 if [ "$(id -u)" != "0" ]; then
 	echo "You must be root to do this."
@@ -28,7 +29,7 @@ fi
 echo "Please contact Chen Xing ( cxcxcxcx@gmail.com ) to report bugs."
 
 PS3="Please select your distribution: "
-select DISTR in Debian/Ubuntu Gentoo openSUSE Other
+select DISTR in Debian/Ubuntu Gentoo openSUSE Archlinux Other
 do
 	case $DISTR in
 		Debian/Ubuntu )
@@ -41,6 +42,10 @@ do
 			;;
 		openSUSE )
 			DISTR="SUSE"
+			break
+			;;
+		Archlinux )
+			DISTR="ARCH"
 			break
 			;;
 		Other )
@@ -62,16 +67,17 @@ PASSWORD=`python ./ipgw mkPwdStr <<< "$PASSWORD"`
 
 
 install -m 755 -o root -g root ipgw /bin/ipgw
-install -m 755 -o root -g root ipgws /etc/init.d/ipgw
 sed -i "s/YourUserName/$USERNAME/" /bin/ipgw
 sed -i "s/YourPassword/$PASSWORD/" /bin/ipgw
 if [ $DISTR = "DEBLIKE" ]; then
+	install -m 755 -o root -g root ipgws /etc/init.d/ipgw
 	echo -ne '#!/bin/bash\nipgw connect\n' > /etc/network/if-up.d/ipgw
 	echo -ne '#!/bin/bash\nipgw disconnect\n' > /etc/network/if-down.d/ipgw
 	chmod +x /etc/network/if-up.d/ipgw
 	chmod +x /etc/network/if-down.d/ipgw
 	#ln -fs /etc/init.d/ipgw /etc/rc2.d/S90ipgw
 elif [ $DISTR = "FEDORA" ]; then
+	install -m 755 -o root -g root ipgws /etc/init.d/ipgw
 	ln -fs /etc/init.d/ipgw /etc/rc5.d/S90ipgw
 	ln -fs /etc/init.d/ipgw /etc/rc6.d/K13ipgw
 	ln -fs /etc/init.d/ipgw /etc/rc0.d/K13ipgw
@@ -79,10 +85,14 @@ elif [ $DISTR = "GENTOO" ]; then
 	install -m 755 -o root -g root ipgws_gen /etc/init.d/ipgw
 	rc-update add ipgw default
 elif [ $DISTR = "SUSE" ]; then
+	install -m 755 -o root -g root ipgws /etc/init.d/ipgw
 	ln -fs /etc/init.d/ipgw /etc/init.d/rc5.d/S90ipgw
 	ln -fs /etc/init.d/ipgw /etc/init.d/rc6.d/K13ipgw
 	ln -fs /etc/init.d/ipgw /etc/init.d/rc0.d/K13ipgw
+elif [ $DISTR = "ARCH" ]; then
+	install -m 755 -o root -g root ipgws_arch /etc/rc.d/ipgw
 else
+	install -m 755 -o root -g root ipgws /etc/init.d/ipgw
 	ln -fs /etc/init.d/ipgw /etc/rc5.d/S90ipgw
 	ln -fs /etc/init.d/ipgw /etc/rc6.d/K13ipgw
 	ln -fs /etc/init.d/ipgw /etc/rc0.d/K13ipgw

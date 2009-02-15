@@ -12,6 +12,7 @@
 #  Created: 2007/09/27
 # Modified: 2008/02/28
 # Modified: 2008/10/07
+# Modified: 2009/02/15
 
 import cookielib, urllib2, urllib, base64
 import re
@@ -106,7 +107,7 @@ myPassword=base64.b64decode(myPassword)
 
 arg=sys.argv;
 if len(arg)==1 or arg[1] not in ['mkPwdStr', 'connect', 'disconnect' ]:
-	print "Usage: ipgw connect|disconnect"
+	print "Usage: ipgw connect[ all]|disconnect"
 	sys.exit(3)
 
 if arg[1]=='mkPwdStr':
@@ -117,7 +118,10 @@ ik = IPGW_Manager()
 ik.setUserInfo(myUserName, myPassword)
 try:
 	if arg[1]=='connect':
-		ee=ik.doConnect()
+		if len(arg)==2:
+			ee=ik.doConnect()
+		elif arg[2]=='all':
+			ee=ik.doConnect(False)
 		print ee
 	elif arg[1]=='disconnect':
 		ee=ik.doDisconnect()
