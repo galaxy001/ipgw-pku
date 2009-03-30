@@ -63,13 +63,15 @@ class IPGW_Manager:
 		return self._parse(info)
 
 	def _parse(self, info):
+		mystr = ''
 		retDict = dict()
 		for item in info.split(' '):
 			item=item.split('=')
 			if len(item)==1:
 				item.append("")
 			retDict[item[0]]=item[1]
-		return retDict
+			mystr = mystr + "%15s: %s\n" % (item[0], item[1])
+		return mystr
 
 	def _prepare(self):
 		self.loggedIn = False
