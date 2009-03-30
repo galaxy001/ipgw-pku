@@ -19,6 +19,7 @@
 #  Created: 2007/09/27
 # Modified: 2008/02/28
 # Modified: 2009/02/15
+# Modified: 2009/03/30
 
 if [ "$(id -u)" != "0" ]; then
 	echo "You must be root to do this."
@@ -28,10 +29,18 @@ fi
 
 echo "Please contact Chen Xing ( cxcxcxcx@gmail.com ) to report bugs."
 
+echo "Uninstalling..."
+./uninstall.sh
+echo "If you are using NetworkManager with the dispatcher enabled (Ubuntu do this by default, for example), please choose the first one."
+
 PS3="Please select your distribution: "
-select DISTR in Debian/Ubuntu Gentoo openSUSE Archlinux Other
+select DISTR in NetworkManager-with-Dispatcher Debian/Ubuntu Gentoo openSUSE Archlinux Other
 do
 	case $DISTR in
+		NetworkManager-with-Dispatcher )
+			DISTR="nm"
+			break
+			;;
 		Debian/Ubuntu )
 			DISTR="DEBLIKE"
 			break
@@ -76,6 +85,8 @@ if [ $DISTR = "DEBLIKE" ]; then
 	chmod +x /etc/network/if-up.d/ipgw
 	chmod +x /etc/network/if-down.d/ipgw
 	#ln -fs /etc/init.d/ipgw /etc/rc2.d/S90ipgw
+elif [ $DISTR = "nm" ]; then
+	install -m 755 -o root -g root ipgw_nm /etc/NetworkManager/dispatcher.d/99_ipgw
 elif [ $DISTR = "FEDORA" ]; then
 	install -m 755 -o root -g root ipgws /etc/init.d/ipgw
 	ln -fs /etc/init.d/ipgw /etc/rc5.d/S90ipgw
@@ -101,4 +112,4 @@ fi
 echo
 echo "OK."
 
-echo "Go to http://www.linux-wiki.cn/ to read(write) solutions to daily Linux problems?"
+echo "TIPS: Go to http://www.linux-wiki.cn/ to read/write solutions to daily Linux problems."

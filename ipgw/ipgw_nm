@@ -1,0 +1,19 @@
+#!/bin/bash
+# PKU IPGW Client for Linux
+#===========================================
+#   AUTHOR: Chen Xing(  cxcxcxcx@gmail.com )
+#  WEBSITE: http://www.linux-wiki.cn/
+#  Created: 2009/03/30
+
+case "$2" in
+	up)
+		ipgw connect
+		;;
+	down)
+		ipgw disconnect
+		;;
+	*)
+		echo "It should be called by networkmanager."
+esac
+
+exit 0

@@ -3,6 +3,9 @@ INSTALL:
 OR
  $ sudo ./install.sh
 
+UNINSTALL:
+ # ./uninstall.sh
+
 Ads~~: http://www.linux-wiki.cn/
 
 Please contact Chen Xing( cxcxcxcx@gmail.com ) to report bugs.
