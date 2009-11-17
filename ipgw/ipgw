@@ -19,124 +19,132 @@ import re
 import sys
 
 class IPGW_Error(Exception):
-	def __int__(self, *args):
-		Exception.__init__(self,*args)
-		self.wrapped_exc=sys.exc_info()
+    def __int__(self, *args):
+        Exception.__init__(self,*args)
+        self.wrapped_exc=sys.exc_info()
 
 class IPGW_Manager:
-	def __init__(self):
-		self.cj = cookielib.CookieJar()
-		self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
-		self.magicString = "|;kiDrqvfi7d$v0p5Fg72Vwbv2;|"
-		self.loggedIn = False
-		self.infoRE=re.compile(r'<!--IPGWCLIENT_START (.*) IPGWCLIENT_END-->')
+    def __init__(self):
+        self.cj = cookielib.CookieJar()
+        self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
+        self.magicString = "|;kiDrqvfi7d$v0p5Fg72Vwbv2;|"
+        self.loggedIn = False
+        self.infoRE=re.compile(r'<!--IPGWCLIENT_START (.*) IPGWCLIENT_END-->')
 
-	def setUserInfo(self, username, password):
-		self.userName = username
-		self.passWord = password
-	
-	def doConnect(self, free=True):
-		if not self.loggedIn:
-			s=self._prepare()
-			if not self.loggedIn:
-				return s
-		self.doDisconnect()
-		if free:
-			r = self.opener.open("https://its.pku.edu.cn/netportal/ipgwopen")
-		else:
-			r = self.opener.open("https://its.pku.edu.cn/netportal/ipgwopenall")
-		q = r.read()
-		info = self.infoRE.search(q).group(1)
-		return self._parse(info)
+    def setUserInfo(self, username, password):
+        self.userName = username
+        self.passWord = password
+    
+    def doConnect(self, free=True):
+        if not self.loggedIn:
+            s=self._prepare()
+            if not self.loggedIn:
+                return s
+        self.doDisconnect()
+        if free:
+            r = self.opener.open("https://its.pku.edu.cn/netportal/ipgwopen")
+        else:
+            r = self.opener.open("https://its.pku.edu.cn/netportal/ipgwopenall")
+        q = r.read()
+        info = self.infoRE.search(q).group(1)
+        return self._parse(info)
 
-	def doDisconnect(self, all=True):
-		if not self.loggedIn:
-			s=self._prepare()
-			if not self.loggedIn:
-				return s
-		if all:
-			r = self.opener.open("https://its.pku.edu.cn/netportal/ipgwcloseall")
-		else:
-			r = self.opener.open("https://its.pku.edu.cn/netportal/ipgwclose")
-		q = r.read()
-		info = self.infoRE.search(q).group(1)
-		return self._parse(info)
+    def doDisconnect(self, all=True):
+        if not self.loggedIn:
+            s=self._prepare()
+            if not self.loggedIn:
+                return s
+        if all:
+            r = self.opener.open("https://its.pku.edu.cn/netportal/ipgwcloseall")
+        else:
+            r = self.opener.open("https://its.pku.edu.cn/netportal/ipgwclose")
+        q = r.read()
+        info = self.infoRE.search(q).group(1)
+        return self._parse(info)
 
-	def _parse(self, info):
-		mystr = ''
-		retDict = dict()
-		for item in info.split(' '):
-			item=item.split('=')
-			if len(item)==1:
-				item.append("")
-			retDict[item[0]]=item[1]
-			mystr = mystr + "%15s: %s\n" % (item[0], item[1])
-		return mystr
+    def _parse(self, info):
+        mystr = ''
+        retDict = dict()
+        for item in info.split(' '):
+            item=item.split('=')
+            if len(item)==1:
+                item.append("")
+            retDict[item[0]]=item[1]
+            mystr = mystr + "%15s: %s\n" % (item[0], item[1])
+        return mystr
 
-	def _prepare(self):
-		self.loggedIn = False
-		r = self.opener.open("https://its.pku.edu.cn/cas/login")
-		info1 = r.read()
-		reqDict=dict()
-		ltR = re.compile(r'name="lt" value="([^"]+)"')
-		lN = ltR.search(info1)
-		reqDict['lt'] = lN.group(1)
-		reqDict['username1'] = self.userName
-		reqDict['password'] = self.passWord
-		reqDict['iprd']='open'
-		reqDict['fwrd']='free'
-		reqDict['imageField.x']=7
-		reqDict['imageField.y']=3
-		reqDict['_currentStateId']='viewLoginForm'
-		reqDict['_eventId']='submit'
-		reqDict['username']=self.userName+self.magicString+self.passWord+self.magicString+'2'
+    def _prepare(self):
+        self.loggedIn = False
+        r = self.opener.open("https://its.pku.edu.cn/cas/login")
+        info1 = r.read()
+        reqDict=dict()
+        ltR = re.compile(r'name="lt" value="([^"]+)"')
+        lN = ltR.search(info1)
+        reqDict['lt'] = lN.group(1)
+        reqDict['username1'] = self.userName
+        reqDict['password'] = self.passWord
+        reqDict['iprd']='open'
+        reqDict['fwrd']='free'
+        reqDict['imageField.x']=7
+        reqDict['imageField.y']=3
+        reqDict['_currentStateId']='viewLoginForm'
+        reqDict['_eventId']='submit'
+        reqDict['username']=self.userName+self.magicString+self.passWord+self.magicString+'2'
 
-		S = urllib.urlencode(reqDict)
-		r = self.opener.open("https://its.pku.edu.cn/cas/login", S)
-		qS = r.read()
-		if qS.find('Username or Password error!')!=-1:
-			raise IPGW_Error, "Username or Password error"
+        S = urllib.urlencode(reqDict)
+        r = self.opener.open("https://its.pku.edu.cn/cas/login", S)
+        qS = r.read()
+        if qS.find('Username or Password error!')!=-1:
+            raise IPGW_Error, "Username or Password error"
 
-		r = self.opener.open("https://its.pku.edu.cn/netportal/")
-		r.read()
+        r = self.opener.open("https://its.pku.edu.cn/netportal/")
+        r.read()
 
-		self.loggedIn = True
+        self.loggedIn = True
 
 myUserName = "YourUserName"
 myPassword = "YourPassword"
 
 myPassword=base64.b64decode(myPassword)
 
+
 arg=sys.argv;
 if len(arg)==1 or arg[1] not in ['mkPwdStr', 'connect', 'disconnect' ]:
-	print "Usage: ipgw connect[ all]|disconnect"
-	sys.exit(3)
+    print "Usage: ipgw connect[ all]|disconnect"
+    sys.exit(3)
 
 if arg[1]=='mkPwdStr':
-	pt = raw_input()
-	print base64.b64encode(pt)
+    pt = raw_input()
+    print base64.b64encode(pt)
+    sys.exit(0)
 
+if myUserName.startswith("Your"):
+    print "Please input your username:", 
+    myUserName = raw_input()
+    import getpass
+    myPassword = getpass.getpass()
+    
 ik = IPGW_Manager()
 ik.setUserInfo(myUserName, myPassword)
 try:
-	if arg[1]=='connect':
-		if len(arg)==2:
-			ee=ik.doConnect()
-		elif arg[2]=='all':
-			ee=ik.doConnect(False)
-		print ee
-	elif arg[1]=='disconnect':
-		ee=ik.doDisconnect()
-		print ee
+    if arg[1]=='connect':
+        if len(arg)==2:
+            ee=ik.doConnect()
+        elif arg[2]=='all':
+            ee=ik.doConnect(False)
+        print ee
+    elif arg[1]=='disconnect':
+        ee=ik.doDisconnect()
+        print ee
 except urllib2.URLError:
-	print "Network Error!"
-	sys.exit(1)
+    print "Network Error!"
+    sys.exit(1)
 except IPGW_Error:
-	print "Connection Failed!"
-	print "Username or Password error!"
-	print "  Possible reasons:"
-	print "    1.Locked by network fee delay"
-	print "    2.Username/Password error"
-	print "    3.Network Account deleted"
-	sys.exit(2)
+    print "Connection Failed!"
+    print "Username or Password error!"
+    print "  Possible reasons:"
+    print "    1.Locked by network fee delay"
+    print "    2.Username/Password error"
+    print "    3.Network Account deleted"
+    sys.exit(2)
 
