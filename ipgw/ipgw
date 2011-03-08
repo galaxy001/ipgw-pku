@@ -13,6 +13,7 @@
 # Modified: 2008/02/28
 # Modified: 2008/10/07
 # Modified: 2009/02/15
+# Modified: 2011/03/08
 
 import cookielib, urllib2, urllib, base64
 import re
@@ -75,7 +76,7 @@ class IPGW_Manager:
 
     def _prepare(self):
         self.loggedIn = False
-        r = self.opener.open("https://its.pku.edu.cn/cas/login")
+        r = self.opener.open("https://its.pku.edu.cn/cas/login?service=https%3A%2F%2Fits.pku.edu.cn%2Fnetportal%2F")
         info1 = r.read()
         reqDict=dict()
         ltR = re.compile(r'name="lt" value="([^"]+)"')
