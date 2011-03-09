@@ -1,0 +1,24 @@
+#! /sbin/runscript
+
+depend() {
+	after net
+}
+
+start() {
+	ebegin "Starting ipgw"
+	ipgw connect
+	eend $?
+}
+
+stop(){
+	ebegin "Stopping ipgw"
+	ipgw disconnect
+	eend $?
+}
+
+restart(){
+	svc_stop; svc_start;
+#	ebegin "Restarting ipgw..."
+#	Connect
+#	eend $?
+}

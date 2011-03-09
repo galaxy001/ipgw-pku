@@ -1,0 +1,78 @@
+#!/bin/bash
+# PKU IPGW Client for Linux
+#===========================================
+#   AUTHOR: Chen Xing(  cxcxcxcx@gmail.com )
+#  WEBSITE: http://www.linux-wiki.cn/
+#  Created: 2007/09/27
+# Modified: 2008/02/28
+
+. /etc/rc.conf
+. /etc/rc.d/functions
+
+waitNetwork(){
+	i=1
+	ifconfig|grep -q "inet addr:.*B" && route -n | grep -q "^0.0.0.0"
+	until [ $? -eq 0 ] || [ $i -gt 60 ]; do
+		let i=i+1
+		sleep 0.3
+		ifconfig|grep -q "inet addr:.*B" && route -n | grep -q "^0.0.0.0"
+	done
+
+	if [ $i -gt 60 ]; then
+		return 2
+	else
+		return 0
+	fi
+}
+
+Disconnect(){
+	ipgw disconnect
+	return $?
+}
+
+Connect(){
+	ipgw connect
+	return $?
+}
+
+Failed(){
+	echo "Failed"
+	if [[ $1 == 2 ]]; then
+		echo "ERROR: Username or password error."
+	elif [[ $1 == 1 ]]; then
+		echo "ERROR: network error."
+	fi
+	exit 1
+}
+
+case "$1" in
+	start)
+		stat_busy "Connecting to ipgw..."
+		Connect > /dev/null 
+		if [ $? -gt 0 ]; then
+			stat_fail
+		else
+			add_daemon ipgw
+			stat_done
+		fi
+		;;
+	stop)
+		stat_busy "Disconnecting from ipgw..."
+		Disconnect > /dev/null
+		if [ $? -gt 0 ]; then
+			stat_fail
+		else
+			rm_daemon ipgw
+			stat_done
+		fi
+		;;
+	restart)
+		$0 stop
+		$0 start
+		;;
+	*)
+		echo "usage: $0 {start|stop|restart}"
+		exit 1
+esac
+
+exit 0
