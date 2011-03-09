@@ -20,7 +20,7 @@ import re
 import sys
 
 class IPGW_Error(Exception):
-    def __int__(self, *args):
+    def __init__(self, *args):
         Exception.__init__(self,*args)
         self.wrapped_exc=sys.exc_info()
 
